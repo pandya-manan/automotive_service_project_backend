@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/signup")
 @CrossOrigin(
-        origins = "http://localhost:3000", // React app origin
+        origins = "http://localhost:5173", // React app origin
         allowedHeaders = "*",
         methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS},
         allowCredentials = "true"

@@ -3,6 +3,7 @@ package com.automotive.signup.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -13,6 +14,7 @@ import jakarta.persistence.OneToMany;
 public class Customer extends User{
 
     @OneToMany(mappedBy="owner",cascade= CascadeType.ALL,orphanRemoval=true)
+    @JsonManagedReference
     List<Vehicle> vehicles=new ArrayList<>();
 
     public List<Vehicle> getCustomerVehicles()

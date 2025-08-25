@@ -1,5 +1,6 @@
 package com.automotive.signup.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import javax.annotation.processing.Generated;
@@ -26,6 +27,7 @@ public class Vehicle {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id")
+    @JsonBackReference
     private Customer owner;
 
     @OneToOne
