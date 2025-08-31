@@ -7,6 +7,7 @@ import com.automotive.signup.service.SignUpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
+@Tag(name="Sign Up Service -  Automotive Service Centre Management System",description="This API has the functionality for signing up new users onto the Automotive Service Platform")
 @RestController
 @RequestMapping("/signup")
 @CrossOrigin(
