@@ -1,12 +1,14 @@
 package com.automotive.login.service;
 
-import com.automotive.login.dto.JwtResponseDTO;
-import com.automotive.login.dto.LoginRequestDTO;
-import com.automotive.login.dto.PasswordResetConfirmRequestDTO;
-import com.automotive.login.dto.PasswordResetRequestDTO;
+import com.automotive.login.entity.LoginRequestDTO;
+import com.automotive.login.entity.User;
+import com.automotive.login.exception.InvalidPasswordException;
+import com.automotive.login.exception.UserNotFoundException;
+
+import jakarta.validation.Valid;
 
 public interface LoginService {
-    JwtResponseDTO login(LoginRequestDTO dto);
-    String requestPasswordReset(PasswordResetRequestDTO dto);
-    void confirmPasswordReset(PasswordResetConfirmRequestDTO dto);
+
+	User login(@Valid LoginRequestDTO loginRequest) throws UserNotFoundException, InvalidPasswordException;
+
 }
