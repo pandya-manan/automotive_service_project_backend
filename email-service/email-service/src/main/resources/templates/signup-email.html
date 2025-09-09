@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>PitStopPro - Signup Successful</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fb;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #0044cc, #007bff);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 25px;
+            line-height: 1.6;
+        }
+        .content h3 {
+            color: #0044cc;
+            margin-top: 0;
+        }
+        .highlight {
+            font-weight: 600;
+            color: #007bff;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 22px;
+            margin-top: 20px;
+            background: #007bff;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .footer {
+            background-color: #f0f3f7;
+            text-align: center;
+            font-size: 13px;
+            color: #666666;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <h2>Welcome to PitStopPro</h2>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <!-- ✅ Fixed: name is shown in greeting -->
+        <h3>Hello <span th:text="${name}">User</span>,</h3>
+
+        <!-- ✅ Fixed: role is shown in role section -->
+        <p>
+            🎉 Thank you for signing up at <strong>PitStopPro</strong> as a
+            <span class="highlight" th:text="${role}">Customer</span>.
+        </p>
+
+        <p th:if="${role} == 'CUSTOMER'">
+            🎉 Thank you for signing up at <strong>PitStopPro</strong> as a valued <span class="highlight">Customer</span>.<br/>
+            You can now book appointments, track your vehicle history, and enjoy a seamless service experience.
+        </p>
+
+        <p th:if="${role} == 'SERVICE_MANAGER'">
+            🎉 Welcome aboard <strong>PitStopPro</strong> as a <span class="highlight">Service Manager</span>.<br/>
+            You can now manage customer appointments, oversee vehicle service records, and streamline your workshop operations.
+        </p>
+
+        <p th:if="${role} == 'ADMIN'">
+            🎉 Welcome to <strong>PitStopPro</strong> as an <span class="highlight">Administrator</span>.<br/>
+            You now have full control over system users, services, and platform configurations.
+        </p>
+
+        <!-- Use the dynamic loginUrl instead of hardcoding -->
+        <a th:href="${loginUrl}" class="button">Login to Your Account</a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>&copy; 2025 PitStopPro. All rights reserved.</p>
+        <p>Need help? Contact us at <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}">support@pitstoppro.com</a></p>
+    </div>
+</div>
+</body>
+</html>
