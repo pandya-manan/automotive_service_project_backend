@@ -7,3 +7,4 @@ It allows services to register themselves and discover other services dynamicall
 Microservices
 1. Sign Up Service: Developed using spring boot for signing up users new to the automotive service center portal.
 2. Login Service: Developed using spring boot for allowing valid users to login to the automotive service center portal. Concepts such as spring security and jwt based token have been used.
+3. Email Service: Email service is developed to send notifications at possible touch points. This uses the concept of SMTP and uses GMail to send mails.
