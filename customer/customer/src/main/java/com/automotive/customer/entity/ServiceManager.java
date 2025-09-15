@@ -1,4 +1,4 @@
-package com.automotive.login.entity;
+package com.automotive.customer.entity;
 
 import jakarta.persistence.*;
 

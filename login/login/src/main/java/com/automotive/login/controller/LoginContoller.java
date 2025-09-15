@@ -36,7 +36,7 @@ public class LoginContoller {
 	
 	@PostMapping
 	@Operation(summary = "Login a user",
-    description = "Allows a user to login(Customer, Service Manager, Admin) based on role.")
+    description = "Allows a user to login(Customer, Service Manager, Admin, Call Centre Agent, Mechanic) based on role.")
 	@ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login done successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data"),

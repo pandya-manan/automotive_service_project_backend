@@ -2,6 +2,9 @@ package com.automotive.signup.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @DiscriminatorValue(value="SERVICE_MANAGER")
 public class ServiceManager extends User{
@@ -16,8 +19,8 @@ public class ServiceManager extends User{
     @Column(name="service_department")
     private String serviceDepartment;
 
-    @OneToOne(mappedBy = "assignedManager", cascade = CascadeType.ALL)
-    private Vehicle assignedVehicle;
+    @OneToMany(mappedBy = "assignedManager", cascade = CascadeType.PERSIST, orphanRemoval = false, fetch = FetchType.LAZY)
+    private List<Vehicle> assignedVehicles = new ArrayList<>();
 
     // --- getters and setters ---
     public Integer getYearsOfExperience() {
@@ -36,15 +39,20 @@ public class ServiceManager extends User{
         this.serviceDepartment = serviceDepartment;
     }
 
-    public Vehicle getAssignedVehicle() {
-        return assignedVehicle;
+    public void assignVehicle(Vehicle v) {
+        assignedVehicles.add(v);
+        v.setAssignedManager(this);
+    }
+    public void unassignVehicle(Vehicle v) {
+        assignedVehicles.remove(v);
+        v.setAssignedManager(null);
     }
 
-    public void setAssignedVehicle(Vehicle assignedVehicle) {
-        this.assignedVehicle = assignedVehicle;
-        if (assignedVehicle != null) {
-            assignedVehicle.setAssignedManager(this);
-        }
+    public List<Vehicle> getAssignedVehicles() {
+        return assignedVehicles;
     }
 
+    public void setAssignedVehicles(List<Vehicle> assignedVehicles) {
+        this.assignedVehicles = assignedVehicles;
+    }
 }

@@ -1,4 +1,4 @@
-package com.automotive.signup.entity;
+package com.automotive.customer.entity;
 
 public enum Role {
 
@@ -7,4 +7,5 @@ public enum Role {
     ADMIN,
     MECHANIC,
     CALL_CENTRE_AGENT
+
 }

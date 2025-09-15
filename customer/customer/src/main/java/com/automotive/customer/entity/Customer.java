@@ -1,14 +1,13 @@
-package com.automotive.signup.entity;
+package com.automotive.customer.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("CUSTOMER")
@@ -18,7 +17,6 @@ public class Customer extends User{
     @JsonManagedReference
     List<Vehicle> vehicles=new ArrayList<>();
 
-    @JsonIgnore
     public List<Vehicle> getCustomerVehicles()
     {
         return this.vehicles;

@@ -2,6 +2,8 @@ package com.automotive.signup.factory;
 import com.automotive.signup.entity.*;
 import com.automotive.signup.dto.SignUpRequestDTO;
 
+import java.util.Locale;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +36,28 @@ public class UserFactory {
                 populateCommonFields(admin, dto, role);
                 return admin;
             }
+            case MECHANIC -> {
+                Mechanic mechanic = new Mechanic();
+                logger.info("Mechanic user being created for the username: " + dto.getUserName());
+                populateCommonFields(mechanic, dto, role);
+
+                mechanic.setHourlyRate(dto.getHourlyRate());
+                mechanic.setSpecialization(
+                        Specialization.valueOf(dto.getSpecialization().toUpperCase(Locale.ROOT))
+                );
+                mechanic.setYearsOfExperience(dto.getYearsOfExperience());
+                mechanic.setAvailabilityStatus(AvailabilityStatus.AVAILABLE);
+
+                return mechanic;
+            }
+            case CALL_CENTRE_AGENT->
+            {
+                CallCenterAgent callCentreAgent=new CallCenterAgent();
+                logger.info("Call Center Agent user being created for the username: "+dto.getUserName());
+                populateCommonFields(callCentreAgent,dto,role);
+                return callCentreAgent;
+            }
+
             default -> throw new IllegalArgumentException("Unsupported role: " + dto.getRole());
 
         }
@@ -50,4 +74,6 @@ public class UserFactory {
         user.setRole(role);
         logger.info(user.toString()+" User object populated using common fields");
     }
+
+
 }

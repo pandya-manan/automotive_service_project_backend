@@ -38,6 +38,12 @@ public class SignUpRequestDTO {
     
     @Size(min=5,max=20,message="Service Department needs to be within {min} and {max} characters")
     private String serviceDepartment;
+
+    private String specialization;
+
+    private String availabilityStatus;
+
+    private Double hourlyRate;
     
     public String getUserName() {
         return userName;
@@ -117,6 +123,31 @@ public class SignUpRequestDTO {
     public SignUpRequestDTO() {
     }
 
+
+    public String getAvailabilityStatus() {
+        return availabilityStatus;
+    }
+
+    public void setAvailabilityStatus(String availabilityStatus) {
+        this.availabilityStatus = availabilityStatus;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public Double getHourlyRate() {
+        return hourlyRate;
+    }
+
+    public void setHourlyRate(Double hourlyRate) {
+        this.hourlyRate = hourlyRate;
+    }
+
     @Override
     public String toString() {
         return "SignUpRequestDTO{" +
@@ -128,6 +159,9 @@ public class SignUpRequestDTO {
                 ", role='" + role + '\'' +
                 ", yearsOfExperience=" + yearsOfExperience +
                 ", serviceDepartment='" + serviceDepartment + '\'' +
+                ", specialization='" + specialization + '\'' +
+                ", availabilityStatus='" + availabilityStatus + '\'' +
+                ", hourlyRate=" + hourlyRate +
                 '}';
     }
 }

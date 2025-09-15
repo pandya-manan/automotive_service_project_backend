@@ -4,5 +4,8 @@ public enum Role {
 
     CUSTOMER,
     SERVICE_MANAGER,
-    ADMIN
+    ADMIN,
+    MECHANIC,
+    CALL_CENTRE_AGENT
+
 }

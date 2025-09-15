@@ -4,35 +4,78 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import javax.annotation.processing.Generated;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name="vehicles")
+@Table(name = "vehicles",
+        indexes = {
+                @Index(name = "idx_vehicle_vin", columnList = "vin"),
+                @Index(name = "idx_vehicle_reg", columnList = "registration_number")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uc_vehicle_vin", columnNames = {"vin"}),
+                @UniqueConstraint(name = "uc_vehicle_reg", columnNames = {"registration_number"})
+        }
+)
 public class Vehicle {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long vehicleId;
 
+    @Column(length = 50, nullable = false)
     private String vin;
 
+    @Column(length = 100)
     private String make;
 
+    @Column(length = 100)
     private String model;
 
+    @Column(name = "registration_number", length = 50, nullable = false)
     private String registrationNumber;
 
+    @Column(name = "is_insured")
     private Boolean isInsured;
 
+    @Column(name = "year_of_registration")
     private Integer yearOfRegistration;
+
+    @Column(name = "is_booked_for_service")
+    private Boolean isBookedForService;
+
+    @Column(name = "is_service_done")
+    private Boolean isServiceDone;
+
+    @Version
+    private Long version;   //Optimistic Locking Feature
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id")
     @JsonBackReference
     private Customer owner;
 
-    @OneToOne
-    @JoinColumn(name = "service_manager_id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_manager_id")
     private ServiceManager assignedManager;
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<WorkOrder> workOrders = new ArrayList<>();
+
+    private OffsetDateTime createdAt = OffsetDateTime.now();
+    private OffsetDateTime updatedAt;
+
+    // Convenience
+    public void addWorkOrder(WorkOrder wo) {
+        workOrders.add(wo);
+        wo.setVehicle(this);
+    }
+    public void removeWorkOrder(WorkOrder wo) {
+        workOrders.remove(wo);
+        wo.setVehicle(null);
+    }
 
     // getter/setter
     public ServiceManager getAssignedManager() {
@@ -104,5 +147,74 @@ public class Vehicle {
 
     public void setOwner(Customer owner) {
         this.owner = owner;
+    }
+
+    public Boolean getBookedForService() {
+        return isBookedForService;
+    }
+
+    public void setBookedForService(Boolean bookedForService) {
+        isBookedForService = bookedForService;
+    }
+
+    public Boolean getServiceDone() {
+        return isServiceDone;
+    }
+
+    public void setServiceDone(Boolean serviceDone) {
+        isServiceDone = serviceDone;
+    }
+
+    @Override
+    public String toString() {
+        return "Vehicle{" +
+                "vehicleId=" + vehicleId +
+                ", vin='" + vin + '\'' +
+                ", make='" + make + '\'' +
+                ", model='" + model + '\'' +
+                ", registrationNumber='" + registrationNumber + '\'' +
+                ", isInsured=" + isInsured +
+                ", yearOfRegistration=" + yearOfRegistration +
+                ", isBookedForService=" + isBookedForService +
+                ", isServiceDone=" + isServiceDone +
+                ", version=" + version +
+                ", owner=" + owner +
+                ", assignedManager=" + assignedManager +
+                ", workOrders=" + workOrders +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<WorkOrder> getWorkOrders() {
+        return workOrders;
+    }
+
+    public void setWorkOrders(List<WorkOrder> workOrders) {
+        this.workOrders = workOrders;
     }
 }

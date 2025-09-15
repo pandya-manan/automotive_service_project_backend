@@ -1,9 +1,8 @@
-package com.automotive.login.entity;
+package com.automotive.customer.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import javax.annotation.processing.Generated;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
