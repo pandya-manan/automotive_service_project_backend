@@ -32,7 +32,8 @@ public class CustomerServiceController {
     @Operation(summary = "Add a new vehicle",
             description = "This API allows a customer to add a new vehicle")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Vehicle added successfully")
+            @ApiResponse(responseCode = "201", description = "Vehicle added successfully"),
+            @ApiResponse(responseCode = "400",description="Bad Request")
     })
     @PostMapping
     public ResponseEntity<Vehicle> addVehicle(@PathVariable Long customerId,
@@ -49,7 +50,7 @@ public class CustomerServiceController {
     @Operation(summary = "Get all vehicles for a customer",
             description = "Fetches all vehicles belonging to a customer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Vehicles fetched successfully")
+            @ApiResponse(responseCode = "200", description = "Vehicles fetched successfully even if vehicles not present")
     })
     @GetMapping
     public ResponseEntity<List<Vehicle>> getVehicles(@PathVariable Long customerId)
@@ -61,7 +62,8 @@ public class CustomerServiceController {
     @Operation(summary = "Update an existing vehicle",
             description = "Allows a customer to update a vehicle by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Vehicle updated successfully")
+            @ApiResponse(responseCode = "200", description = "Vehicle updated successfully"),
+            @ApiResponse(responseCode="409",description="Error in vehicle or customer data")
     })
     @PutMapping("/{vehicleId}")
     public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long customerId,
@@ -75,7 +77,8 @@ public class CustomerServiceController {
     @Operation(summary = "Delete a vehicle",
             description = "Allows a customer to delete a vehicle by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Vehicle deleted successfully")
+            @ApiResponse(responseCode = "204", description = "Vehicle deleted successfully"),
+            @ApiResponse(responseCode="409",description="Vehicle does not exist")
     })
     @DeleteMapping("/{vehicleId}")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long customerId,
