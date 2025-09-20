@@ -1,7 +1,7 @@
 # 🚗 Automotive Service Center Project  
 
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-brightgreen?logo=springboot)
-![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen?logo=springboot)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 ![Eureka](https://img.shields.io/badge/Eureka-Server-blue?logo=spring)
 
 > A microservices-based automotive service center platform built with Spring Boot and Spring Cloud.
@@ -26,7 +26,7 @@ It allows services to **register themselves** and **discover other services** dy
 ---
 
 ### 🛠️ Tech Highlights  
-- ✅ **Spring Boot** for microservices  
+- ✅ **Spring Boot 3.3.4** for microservices  
 - 🔒 **Spring Security + JWT** for authentication  
 - 🌐 **Eureka Server** for service discovery  
 
