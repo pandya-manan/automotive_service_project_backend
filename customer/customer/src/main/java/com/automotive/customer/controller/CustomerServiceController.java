@@ -18,12 +18,6 @@ import java.util.List;
 @Tag(name="Customer Service - Automotive Service Center Management System",description="This API has the functionality for allowing customers to perform crud on vehicles")
 @RestController
 @RequestMapping("/api/customers/{customerId}/vehicles")
-@CrossOrigin(
-        origins = "http://localhost:5173", // React app origin
-        allowedHeaders = "*",
-        methods = {RequestMethod.POST},
-        allowCredentials = "true"
-)
 public class CustomerServiceController {
 
     @Autowired

@@ -1,6 +1,7 @@
 package com.automotive.customer.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
@@ -61,6 +62,7 @@ public class Vehicle {
     private ServiceManager assignedManager;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<WorkOrder> workOrders = new ArrayList<>();
 
     private OffsetDateTime createdAt = OffsetDateTime.now();

@@ -42,6 +42,9 @@ public class WorkOrder {
 
     private OffsetDateTime createdAt = OffsetDateTime.now();
     private OffsetDateTime updatedAt;
+    
+    @Column(name="service_order_id")
+    private String serviceOrderId;
 
     // getters/setters...
 
@@ -148,4 +151,14 @@ public class WorkOrder {
     public void setUpdatedAt(OffsetDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+	public String getServiceOrderId() {
+		return serviceOrderId;
+	}
+
+	public void setServiceOrderId(String serviceOrderId) {
+		this.serviceOrderId = serviceOrderId;
+	}
+    
+    
 }

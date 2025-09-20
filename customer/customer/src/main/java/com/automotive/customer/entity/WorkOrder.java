@@ -1,6 +1,7 @@
 package com.automotive.customer.entity;
 
 import com.automotive.customer.entity.WorkOrderStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
@@ -16,6 +17,7 @@ public class WorkOrder {
     // the vehicle this job is for
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
+    @JsonBackReference
     private Vehicle vehicle;
 
     // mechanic assigned (can be null initially)
@@ -44,9 +46,21 @@ public class WorkOrder {
     private OffsetDateTime createdAt = OffsetDateTime.now();
     private OffsetDateTime updatedAt;
 
+    @Column(name="service_order_id")
+    private String serviceOrderId;
+    
+    
     // getters/setters...
 
-    public Long getId() {
+    public String getServiceOrderId() {
+		return serviceOrderId;
+	}
+
+	public void setServiceOrderId(String serviceOrderId) {
+		this.serviceOrderId = serviceOrderId;
+	}
+
+	public Long getId() {
         return id;
     }
 

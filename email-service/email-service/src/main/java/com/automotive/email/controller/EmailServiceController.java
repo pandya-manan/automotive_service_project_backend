@@ -1,5 +1,6 @@
 package com.automotive.email.controller;
 
+import com.automotive.email.entity.ServiceBookingRequestDTO;
 import com.automotive.email.entity.SignupEmailRequestDTO;
 import com.automotive.email.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,5 +35,12 @@ public class EmailServiceController {
     {
         emailService.sendSignUpEmail(signupDTO);
         return ResponseEntity.ok("Signup email sent to " + signupDTO.getTo());
+    }
+    
+    @PostMapping("/service")
+    public ResponseEntity<String> sendServiceBookingEmail(@Valid @RequestBody ServiceBookingRequestDTO serviceBookingDTO)
+    {
+    	emailService.sendServiceBookingEmail(serviceBookingDTO);
+    	return ResponseEntity.ok("Service Booking Confirmation Email sent to "+serviceBookingDTO.getTo());
     }
 }

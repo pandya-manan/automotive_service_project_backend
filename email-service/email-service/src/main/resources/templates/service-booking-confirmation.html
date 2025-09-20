@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>PitStopPro - Service Booking Confirmed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fb;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #0044cc, #007bff);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 25px;
+            line-height: 1.6;
+        }
+        .content h3 {
+            color: #0044cc;
+            margin-top: 0;
+        }
+        .highlight {
+            font-weight: 600;
+            color: #007bff;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 22px;
+            margin-top: 20px;
+            background: #007bff;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .footer {
+            background-color: #f0f3f7;
+            text-align: center;
+            font-size: 13px;
+            color: #666666;
+            padding: 15px;
+        }
+        .details-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .details-table th, .details-table td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .details-table th {
+            background-color: #f4f7fb;
+            color: #0044cc;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <h2>PitStopPro Service Booking Confirmed</h2>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <h3>Hello <span th:text="${to}">Customer</span>,</h3>
+
+        <p>
+            🎉 Your vehicle service has been successfully booked with <strong>PitStopPro</strong>!
+        </p>
+
+        <p>
+            Here are the details of your booking:
+        </p>
+
+        <table class="details-table">
+            <tr>
+                <th>Service Order ID</th>
+                <td th:text="${serviceOrderId}">123456</td>
+            </tr>
+            <tr>
+                <th>Booking Date</th>
+                <td th:text="${createdAt}">20 Sep 2025, 14:30</td>
+            </tr>
+            <tr>
+                <th>Vehicle VIN</th>
+                <td th:text="${vehicleVin}">1HGCM82633A004352</td>
+            </tr>
+            <tr>
+                <th>Make & Model</th>
+                <td th:text="|${make} ${model}|">Honda Accord</td>
+            </tr>
+        </table>
+
+        <p>
+            You can manage your booking, check updates, or cancel if needed by logging into your account.
+        </p>
+
+        <a th:href="${loginUrl}" class="button">View Your Booking</a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>&copy; 2025 PitStopPro. All rights reserved.</p>
+        <p>Need help? Contact us at <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}">support@pitstoppro.com</a></p>
+    </div>
+</div>
+</body>
+</html>

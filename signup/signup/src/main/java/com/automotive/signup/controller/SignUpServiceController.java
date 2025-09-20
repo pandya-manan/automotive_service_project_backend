@@ -18,12 +18,6 @@ import java.util.logging.Logger;
 @Tag(name="Sign Up Service -  Automotive Service Centre Management System",description="This API has the functionality for signing up new users onto the Automotive Service Platform")
 @RestController
 @RequestMapping("/signup")
-@CrossOrigin(
-        origins = "http://localhost:5173", // React app origin
-        allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS},
-        allowCredentials = "true"
-)
 public class SignUpServiceController {
 
     private static final Logger logger = Logger.getLogger(SignUpServiceController.class.getName());

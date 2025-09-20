@@ -23,12 +23,6 @@ import jakarta.validation.Valid;
 @Tag(name="Login Service - Automotive Service Center Management System",description="This API has the functionality for allowing existing users to login to the platform")
 @RestController
 @RequestMapping("/login")
-@CrossOrigin(
-        origins = "http://localhost:5173", // React app origin
-        allowedHeaders = "*",
-        methods = {RequestMethod.POST},
-        allowCredentials = "true"
-)
 public class LoginContoller {
 	
 	@Autowired

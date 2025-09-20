@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,8 +36,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneral(Exception ex) {
         Map<String, String> error = new HashMap<>();
-        error.put("error", "SQL Error");
+        error.put("error", "Internal Server Error");
         error.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    //Hanlde SQL Exceptions
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<Map<String,String>> handleGeneralSQLExceptions(SQLException e)
+    {
+        Map<String,String>error=new HashMap<>();
+        error.put("error","SQL Error");
+        error.put("message",e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
