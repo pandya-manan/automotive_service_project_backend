@@ -1,9 +1,14 @@
-Automotive Service Center Project
+🚗 Automotive Service Center Project
 
+A microservices-based automotive service center platform built with Spring Boot and Spring Cloud.
 
-Eureka Server is a service registry that enables service discovery in microservice architectures.
+📡 Service Registry – Eureka Server
+
+Eureka Server acts as a service registry 📝 enabling service discovery in a microservice architecture.
 It allows services to register themselves and discover other services dynamically, eliminating the need for hardcoded host/port configurations.
 
-Microservices
-1. Sign Up Service: Developed using spring boot for signing up users new to the automotive service center portal.
-2. Login Service: Developed using spring boot for allowing valid users to login to the automotive service center portal. Concepts such as spring security and jwt based token have been used.
+🧩 Microservices
+Service	Description
+📝 Sign-Up Service	Developed using Spring Boot to onboard new users to the automotive service center portal.
+🔐 Login Service	Developed using Spring Boot to allow valid users to log in. Uses Spring Security and JWT tokens for authentication.
+👤 Customer Service	Handles all functionality related to customers registered on our platform.
