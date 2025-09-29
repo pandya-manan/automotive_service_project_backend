@@ -3,6 +3,7 @@ package com.automotive.customer.service;
 import com.automotive.customer.entity.*;
 import com.automotive.customer.exception.CustomerDoesNotExistException;
 import com.automotive.customer.exception.VehicleDoesNotExistException;
+import com.automotive.customer.repository.CustomerRepository;
 import com.automotive.customer.repository.VehicleRepository;
 import com.automotive.customer.repository.WorkOrderRepository;
 
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -27,6 +29,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
     @Autowired
     private WorkOrderRepository workOrderRepo;
+    
+    @Autowired 
+    private CustomerRepository customerRepo;
     
     @Autowired
     private RestClient restClient;
@@ -82,5 +87,20 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     private static String generateServiceBookingId()
     {
     	return "SRV-"+UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    public List<ServiceStatusProjection> getServiceStatusForCustomer(Long userId) throws VehicleDoesNotExistException, CustomerDoesNotExistException {
+        List<ServiceStatusProjection> result= workOrderRepo.findServiceStatusNative(userId);
+        Customer customer=customerRepo.findCustomerByUserId(userId);
+        if(result.isEmpty() || result==null)
+        {
+        	throw new VehicleDoesNotExistException("There is no service data found for customer "+customer.getUserEmail()+" "+customer.getUserName());       
+        	
+        }
+        if(customer==null)
+        {
+        	throw new CustomerDoesNotExistException("There is no customer with this id in our system");
+        }
+        return result;
     }
 }
