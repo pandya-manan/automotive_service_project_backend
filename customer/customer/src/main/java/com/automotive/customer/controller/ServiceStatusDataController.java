@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @CrossOrigin(
         origins = "http://localhost:5173", // React app origin
         allowedHeaders = "*",
-        methods = {RequestMethod.POST},
+        methods = {RequestMethod.POST,RequestMethod.GET},
         allowCredentials = "true"
 )
 @RequestMapping("/api/customers/{customerId}/service-status")
