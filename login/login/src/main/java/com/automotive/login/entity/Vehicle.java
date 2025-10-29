@@ -1,12 +1,25 @@
 package com.automotive.login.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-
-import javax.annotation.processing.Generated;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "vehicles",
@@ -51,6 +64,9 @@ public class Vehicle {
 
     @Version
     private Long version;   //Optimistic Locking Feature
+    
+    @Column(name="vehicle_image_url")
+    private String vehicleImageUrl;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id")
@@ -66,8 +82,34 @@ public class Vehicle {
 
     private OffsetDateTime createdAt = OffsetDateTime.now();
     private OffsetDateTime updatedAt;
+    
+    
 
-    // Convenience
+    public Boolean getIsInsured() {
+		return isInsured;
+	}
+	public void setIsInsured(Boolean isInsured) {
+		this.isInsured = isInsured;
+	}
+	public Boolean getIsBookedForService() {
+		return isBookedForService;
+	}
+	public void setIsBookedForService(Boolean isBookedForService) {
+		this.isBookedForService = isBookedForService;
+	}
+	public Boolean getIsServiceDone() {
+		return isServiceDone;
+	}
+	public void setIsServiceDone(Boolean isServiceDone) {
+		this.isServiceDone = isServiceDone;
+	}
+	public String getVehicleImageUrl() {
+		return vehicleImageUrl;
+	}
+	public void setVehicleImageUrl(String vehicleImageUrl) {
+		this.vehicleImageUrl = vehicleImageUrl;
+	}
+	// Convenience
     public void addWorkOrder(WorkOrder wo) {
         workOrders.add(wo);
         wo.setVehicle(this);

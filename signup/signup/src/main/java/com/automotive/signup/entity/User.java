@@ -29,8 +29,21 @@ public abstract class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    
+    @Column(name="user_image_url")
+    private String userImageUrl;
+    
+    
 
-    public Long getUserId() {
+    public String getUserImageUrl() {
+		return userImageUrl;
+	}
+
+	public void setUserImageUrl(String userImageUrl) {
+		this.userImageUrl = userImageUrl;
+	}
+
+	public Long getUserId() {
         return userId;
     }
 

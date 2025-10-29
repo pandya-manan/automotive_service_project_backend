@@ -45,7 +45,19 @@ public class SignUpRequestDTO {
 
     private Double hourlyRate;
     
-    public String getUserName() {
+    private String userImageUrl;
+    
+    
+    
+    public String getUserImageUrl() {
+		return userImageUrl;
+	}
+
+	public void setUserImageUrl(String userImageUrl) {
+		this.userImageUrl = userImageUrl;
+	}
+
+	public String getUserName() {
         return userName;
     }
 

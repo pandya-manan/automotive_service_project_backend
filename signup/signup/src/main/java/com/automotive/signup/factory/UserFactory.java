@@ -72,6 +72,7 @@ public class UserFactory {
         user.setUserPhoneNumber(dto.getUserPhoneNumber());
         user.setUserAddress(dto.getUserAddress());
         user.setRole(role);
+        user.setUserImageUrl(dto.getUserImageUrl());
         logger.info(user.toString()+" User object populated using common fields");
     }
 

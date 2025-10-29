@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>PitStopPro - Service Completed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fb;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #0044cc, #007bff);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 25px;
+            line-height: 1.6;
+        }
+        .content h3 {
+            color: #0044cc;
+            margin-top: 0;
+        }
+        .highlight {
+            font-weight: 600;
+            color: #007bff;
+        }
+        .footer {
+            background-color: #f0f3f7;
+            text-align: center;
+            font-size: 13px;
+            color: #666666;
+            padding: 15px;
+        }
+        .details-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .details-table th, .details-table td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .details-table th {
+            background-color: #f4f7fb;
+            color: #0044cc;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>PitStopPro - Service Completed</h2>
+    </div>
+
+    <div class="content">
+        <h3>Hello <span th:text="${userName}">Customer</span>,</h3>
+
+        <p>Your vehicle service is now <strong>completed</strong> successfully at <strong>PitStopPro</strong>.</p>
+
+        <table class="details-table">
+            <tr>
+                <th>Service Order ID</th>
+                <td th:text="${serviceOrderId}">123456</td>
+            </tr>
+            <tr>
+                <th>Vehicle</th>
+                <td th:text="|${make} ${model} (${vehicleVin})|">Honda Accord (VIN12345)</td>
+            </tr>
+            <tr>
+                <th>Service Manager</th>
+                <td th:text="${serviceManager}">John Doe</td>
+            </tr>
+            <tr>
+                <th>Mechanic</th>
+                <td th:text="${mechanic}">Alex Johnson</td>
+            </tr>
+            <tr>
+                <th>Estimated Cost</th>
+                <td th:text="|₹${estimatedCost}|">₹5000</td>
+            </tr>
+            <tr>
+                <th>Final Cost</th>
+                <td th:text="|₹${finalCost}|">₹5500</td>
+            </tr>
+            <tr>
+                <th>Completion Date</th>
+                <td th:text="${completedAt}">28 Oct 2025</td>
+            </tr>
+        </table>
+
+        <p>We hope you are satisfied with our service. Please visit our center again or share your feedback with our Call Centre team.</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 PitStopPro. All rights reserved.</p>
+        <p>Need help? Contact us at <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}"></a></p>
+    </div>
+</div>
+</body>
+</html>

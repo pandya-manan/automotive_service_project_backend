@@ -51,7 +51,9 @@ public class VehicleServiceImpl implements VehicleService{
         existing.setRegistrationNumber(updatedVehicle.getRegistrationNumber());
         existing.setInsured(updatedVehicle.getInsured());
         existing.setYearOfRegistration(updatedVehicle.getYearOfRegistration());
-        return vehicleRepo.save(existing);
+        existing.setVehicleImageUrl(updatedVehicle.getVehicleImageUrl());        
+        return vehicleRepo.save(existing);        
+        
     }
 
     @Override
