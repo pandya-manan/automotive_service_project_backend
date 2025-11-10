@@ -1,0 +1,181 @@
+package com.automotive.mechanic.service;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.automotive.mechanic.dto.MechanicWorkOrderResponse;
+import com.automotive.mechanic.entity.Mechanic;
+import com.automotive.mechanic.entity.Vehicle;
+import com.automotive.mechanic.entity.WorkOrder;
+import com.automotive.mechanic.entity.WorkOrderStatus;
+import com.automotive.mechanic.exception.WorkOrderException;
+import com.automotive.mechanic.repository.WorkOrderRepository;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("MechanicServiceImpl Tests")
+class MechanicServiceImplTest {
+
+    @Mock
+    private WorkOrderRepository workOrderRepository;
+
+    private MechanicServiceImpl mechanicService;
+
+    private WorkOrder testWorkOrder;
+    private Mechanic testMechanic;
+    private Vehicle testVehicle;
+
+    @BeforeEach
+    void setUp() {
+        mechanicService = new MechanicServiceImpl(workOrderRepository);
+
+        testMechanic = new Mechanic();
+        testMechanic.setUserId(1L);
+        testMechanic.setUserName("Test Mechanic");
+
+        testVehicle = new Vehicle();
+        testVehicle.setVehicleId(1L);
+        testVehicle.setVin("VIN123");
+
+        testWorkOrder = new WorkOrder();
+        testWorkOrder.setId(1L);
+        testWorkOrder.setServiceOrderId("SRV-12345678");
+        testWorkOrder.setStatus(WorkOrderStatus.ASSIGNED);
+        testWorkOrder.setMechanic(testMechanic);
+        testWorkOrder.setVehicle(testVehicle);
+        testWorkOrder.setDescription("Test service");
+    }
+
+    @Test
+    @DisplayName("Should successfully list assigned work orders")
+    void testListAssignedWorkOrders_Success() {
+        // Arrange
+        List<WorkOrder> workOrders = new ArrayList<>();
+        workOrders.add(testWorkOrder);
+        when(workOrderRepository.findByMechanic_UserId(1L)).thenReturn(workOrders);
+
+        // Act
+        List<MechanicWorkOrderResponse> result = mechanicService.listAssignedWorkOrders(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("SRV-12345678", result.get(0).getServiceOrderId());
+        verify(workOrderRepository, times(1)).findByMechanic_UserId(1L);
+    }
+
+    @Test
+    @DisplayName("Should successfully get work order")
+    void testGetWorkOrder_Success() throws WorkOrderException {
+        // Arrange
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.getWorkOrder("SRV-12345678", 1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("SRV-12345678", result.getServiceOrderId());
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when work order not found")
+    void testGetWorkOrder_NotFound() {
+        // Arrange
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class, 
+            () -> mechanicService.getWorkOrder("SRV-12345678", 1L));
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+    }
+
+    @Test
+    @DisplayName("Should successfully start work order")
+    void testStartWorkOrder_Success() throws WorkOrderException {
+        // Arrange
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.startWorkOrder("SRV-12345678", 1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(WorkOrderStatus.IN_PROGRESS, result.getStatus());
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+        // Note: save() is not called explicitly as JPA handles persistence through @Transactional
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when trying to start non-assigned work order")
+    void testStartWorkOrder_InvalidStatus() {
+        // Arrange
+        testWorkOrder.setStatus(WorkOrderStatus.OPEN);
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class, 
+            () -> mechanicService.startWorkOrder("SRV-12345678", 1L));
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+    }
+
+    @Test
+    @DisplayName("Should successfully complete work order")
+    void testCompleteWorkOrder_Success() throws WorkOrderException {
+        // Arrange
+        testWorkOrder.setStatus(WorkOrderStatus.IN_PROGRESS);
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.completeWorkOrder("SRV-12345678", 1L, 1500.0);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(WorkOrderStatus.COMPLETED, result.getStatus());
+        assertEquals(1500.0, result.getFinalCost());
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+        // Note: save() is not called explicitly as JPA handles persistence through @Transactional
+    }
+
+    @Test
+    @DisplayName("Should successfully update progress")
+    void testUpdateProgress_Success() throws WorkOrderException {
+        // Arrange
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.updateProgress("SRV-12345678", 1L, "Progress update");
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+        // Note: save() is not called explicitly as JPA handles persistence through @Transactional
+    }
+}
+
