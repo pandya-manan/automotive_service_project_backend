@@ -8,6 +8,7 @@ import com.automotive.signup.factory.UserFactory;
 import com.automotive.signup.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -23,6 +24,9 @@ public class SignUpServiceImpl implements SignUpService {
 
     @Autowired
     private RestClient restClient;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Value("${email-url}")
     private String EMAIL_SERVICE_URL;
@@ -43,6 +47,11 @@ public class SignUpServiceImpl implements SignUpService {
         }
 
         User user = UserFactory.createUser(dto);
+        
+        // Encrypt password before saving
+        String encryptedPassword = passwordEncoder.encode(dto.getUserPassword());
+        user.setUserPassword(encryptedPassword);
+        
         logger.info("Saving to the database: " + user.toString());
         User savedUser = userRepository.save(user);
 

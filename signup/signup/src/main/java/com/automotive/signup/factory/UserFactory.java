@@ -68,7 +68,7 @@ public class UserFactory {
     private static void populateCommonFields(User user, SignUpRequestDTO dto, Role role) {
         user.setUserName(dto.getUserName());
         user.setUserEmail(dto.getUserEmail());
-        user.setUserPassword(dto.getUserPassword()); // 🔒 later use BCryptPasswordEncoder
+        user.setUserPassword(dto.getUserPassword()); // Password will be encrypted in service layer
         user.setUserPhoneNumber(dto.getUserPhoneNumber());
         user.setUserAddress(dto.getUserAddress());
         user.setRole(role);
