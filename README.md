@@ -3,6 +3,12 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen?logo=springboot)
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 ![Eureka](https://img.shields.io/badge/Eureka-Server-blue?logo=spring)
+![AWS](https://img.shields.io/badge/AWS-Cloud-ff9900?logo=amazonaws)
+![React](https://img.shields.io/badge/React-18.2.0-61dafb?logo=react)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-f7df1e?logo=javascript)
+![DaisyUI](https://img.shields.io/badge/DaisyUI-4.12.10-5a21f?logo=tailwindcss)
+![Amazon S3](https://img.shields.io/badge/Amazon_S3-Storage-569a31?logo=amazons3)
+
 
 A comprehensive microservices-based automotive service center platform built with Spring Boot and Spring Cloud, designed to streamline vehicle servicing operations from customer onboarding to work order completion.
 
