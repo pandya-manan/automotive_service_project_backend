@@ -26,42 +26,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         String requestPath = request.getRequestURI();
-        
-        // Skip filter for Swagger/OpenAPI endpoints
-        if (requestPath.startsWith("/docs") || requestPath.startsWith("/swagger") || 
+
+        // ✅ 1. Allow preflight (CORS) requests
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ 2. Skip Swagger / OpenAPI endpoints
+        if (requestPath.startsWith("/docs") || requestPath.startsWith("/swagger") ||
             requestPath.startsWith("/v3/api-docs") || requestPath.startsWith("/webjars")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // ✅ 3. Validate JWT for other API calls
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
-        
+
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Missing or invalid Authorization header\"}");
             response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Missing or invalid Authorization header\"}");
             return;
         }
 
         String token = authHeader.substring(BEARER_PREFIX.length());
-        
+
         try {
             // Validate token
             if (!jwtTokenUtil.validateToken(token)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
                 response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
                 return;
             }
 
-            // Check role - only MECHANIC role allowed
+            // Check role - only CUSTOMER role allowed
             Role userRole = jwtTokenUtil.getRoleFromToken(token);
-            if (userRole != Role.MECHANIC) {
+            if (userRole != Role.CUSTOMER) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\":\"Access denied. MECHANIC role required.\"}");
                 response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Access denied. CUSTOMER role required.\"}");
                 return;
             }
 
@@ -71,11 +79,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             request.setAttribute("userRole", userRole);
 
             filterChain.doFilter(request, response);
+
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Invalid token: " + e.getMessage() + "\"}");
             response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Invalid token: " + e.getMessage() + "\"}");
         }
     }
 }
-
