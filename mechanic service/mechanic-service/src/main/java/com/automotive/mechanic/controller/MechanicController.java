@@ -1,6 +1,7 @@
 package com.automotive.mechanic.controller;
 
 import com.automotive.mechanic.dto.MechanicWorkOrderResponse;
+import com.automotive.mechanic.dto.WorkOrderCompletionRequest;
 import com.automotive.mechanic.exception.WorkOrderException;
 import com.automotive.mechanic.service.MechanicService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +55,7 @@ public class MechanicController {
         return ResponseEntity.ok(service.startWorkOrder(serviceOrderId, mechanicId));
     }
 
-    @Operation(summary="Complete work order", description="Mark a work order as COMPLETED and update final cost")
+    @Operation(summary="Complete work order", description="Mark a work order as COMPLETED with final cost and optional image")
     @ApiResponses({
         @ApiResponse(responseCode="200", description="Work order completed successfully"),
         @ApiResponse(responseCode="400", description="Invalid status transition")
@@ -62,8 +63,9 @@ public class MechanicController {
     @PostMapping("/{mechanicId}/workorders/{serviceOrderId}/complete")
     public ResponseEntity<MechanicWorkOrderResponse> complete(@PathVariable Long mechanicId,
                                                               @PathVariable String serviceOrderId,
-                                                              @RequestParam Double finalCost) throws WorkOrderException {
-        return ResponseEntity.ok(service.completeWorkOrder(serviceOrderId, mechanicId, finalCost));
+                                                              @RequestBody WorkOrderCompletionRequest completionRequest) 
+                                                              throws WorkOrderException {
+        return ResponseEntity.ok(service.completeWorkOrder(serviceOrderId, mechanicId, completionRequest));
     }
 
     @Operation(summary="Update work order progress", description="Update progress or status message for a work order")

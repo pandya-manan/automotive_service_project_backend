@@ -66,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Check role - only CUSTOMER role allowed
             Role userRole = jwtTokenUtil.getRoleFromToken(token);
-            if (userRole != Role.CUSTOMER) {
+            if (userRole != Role.MECHANIC) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\":\"Access denied. CUSTOMER role required.\"}");

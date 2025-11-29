@@ -2,11 +2,13 @@ package com.automotive.email.service;
 
 import com.automotive.email.entity.ServiceBookingRequestDTO;
 import com.automotive.email.entity.ServiceCompletionEmailRequestDTO;
+import com.automotive.email.entity.ServiceOrderCompletionServiceManager;
 import com.automotive.email.entity.SignupEmailRequestDTO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.Valid;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -104,6 +106,48 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Override
 	public void sendServiceCompletionEmail(ServiceCompletionEmailRequestDTO dto) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(dto.getTo());
+            helper.setSubject("Service Completion Notification - " + dto.getVehicleModel());
+
+            // Generate invoice number
+            String invoiceNumber = generateInvoiceNumber();
+            
+            // Prepare Thymeleaf context
+            Context context = new Context();
+            context.setVariable("customerName", dto.getCustomerName());
+            context.setVariable("serviceType", dto.getServiceType());
+            context.setVariable("vehicleModel", dto.getVehicleModel());
+            context.setVariable("licensePlate", dto.getLicensePlate());
+            context.setVariable("serviceDate", dto.getServiceDate());
+            context.setVariable("completionDate", dto.getCompletionDate());
+            context.setVariable("mechanicName", dto.getMechanicName());
+            context.setVariable("serviceCenterInfo", dto.getServiceCenterInfo());
+            context.setVariable("finalCost", dto.getFinalCost());
+            context.setVariable("serviceImageUrl", dto.getServiceImageUrl());
+            context.setVariable("invoiceNumber", invoiceNumber);
+            context.setVariable("serviceDetails", dto.getServiceDetails());
+
+            String htmlContent = templateEngine.process("service-completion-email", context);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send service completion email", e);
+        }
+    }
+
+    private String generateInvoiceNumber() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return "INV-" + LocalDateTime.now().format(formatter);
+    }
+
+    @Override
+	public void sendServiceCompletionEmailServiceManager(ServiceOrderCompletionServiceManager dto) {
 	    try {
 	        String to = dto.getTo().trim();
 	        String from = fromAddress.trim();
@@ -134,5 +178,4 @@ public class EmailServiceImpl implements EmailService{
 	        throw new RuntimeException(e);
 	    }
 	}
-
 }

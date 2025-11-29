@@ -2,6 +2,7 @@ package com.automotive.email.controller;
 
 import com.automotive.email.entity.ServiceBookingRequestDTO;
 import com.automotive.email.entity.ServiceCompletionEmailRequestDTO;
+import com.automotive.email.entity.ServiceOrderCompletionServiceManager;
 import com.automotive.email.entity.SignupEmailRequestDTO;
 import com.automotive.email.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +53,7 @@ public class EmailServiceController {
     	return ResponseEntity.ok("Service Booking Confirmation Email sent to "+serviceBookingDTO.getTo());
     }
     
-    @Operation(summary = "Service Completion Notification",
+    @Operation(summary = "Service Completion Notification Mechanic",
             description = "The service upon being completed, will be notified to the customer")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Service completed successfully"),
@@ -62,6 +63,19 @@ public class EmailServiceController {
     @PostMapping("/service/completed")
     public ResponseEntity<String> sendServiceCompletionEmail(@Valid @RequestBody ServiceCompletionEmailRequestDTO dto) {
         emailService.sendServiceCompletionEmail(dto);
+        return ResponseEntity.ok("Service Completion Email sent to " + dto.getTo());
+    }
+    
+    @Operation(summary = "Service Completion Notification Service Manager",
+            description = "The service upon being completed, will be notified to the customer")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Service completed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "409", description = "Duplicate email or phone number")
+    })
+    @PostMapping("/service/completed/service-manager")
+    public ResponseEntity<String> sendServiceCompletionEmailServiceManager(@Valid @RequestBody ServiceOrderCompletionServiceManager dto) {
+        emailService.sendServiceCompletionEmailServiceManager(dto);
         return ResponseEntity.ok("Service Completion Email sent to " + dto.getTo());
     }
 
