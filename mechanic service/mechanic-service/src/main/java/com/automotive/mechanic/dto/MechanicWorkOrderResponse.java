@@ -16,8 +16,15 @@ public class MechanicWorkOrderResponse {
     private Double estimatedCost;
     private Double finalCost;
     private Long managerId;
+    private String vehicleImageUrl;
 
-    // Getters & Setters
+    public String getVehicleImageUrl() {
+		return vehicleImageUrl;
+	}
+	public void setVehicleImageUrl(String vehicleImageUrl) {
+		this.vehicleImageUrl = vehicleImageUrl;
+	}
+	// Getters & Setters
     public String getServiceOrderId() { return serviceOrderId; }
     public void setServiceOrderId(String serviceOrderId) { this.serviceOrderId = serviceOrderId; }
 

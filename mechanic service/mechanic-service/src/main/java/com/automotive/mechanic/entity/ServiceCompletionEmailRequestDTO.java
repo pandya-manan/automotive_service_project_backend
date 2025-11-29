@@ -1,4 +1,4 @@
-package com.automotive.email.entity;
+package com.automotive.mechanic.entity;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +9,10 @@ public class ServiceCompletionEmailRequestDTO {
     @NotBlank(message = "Recipient email is required")
     @Email(message = "Invalid email format")
     private String to;
+    
+    @NotBlank(message="From email is required")
+    @Email(message="Invalid email format")
+    private String from;
     
     @NotBlank(message = "Customer name is required")
     private String customerName;
@@ -40,6 +44,16 @@ public class ServiceCompletionEmailRequestDTO {
     private String serviceImageUrl; // New field for the captured image
     private String invoiceNumber; // New field for invoice
     private String serviceDetails; // New field for detailed service description
+    
+    
+    
+    
+	public String getFrom() {
+		return from;
+	}
+	public void setFrom(String from) {
+		this.from = from;
+	}
 	public String getTo() {
 		return to;
 	}

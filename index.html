@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Uploader</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        h1 {
+            color: #232f3e;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            color: #232f3e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #f0f2f5;
+            border: 1px dashed #c4c7cc;
+            border-radius: 4px;
+            text-align: center;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .file-input-button:hover {
+            background-color: #e6e9ed;
+        }
+        
+        .selected-file {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        button {
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #e68900;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .delete-btn {
+            background-color: #d13212;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .delete-btn:hover {
+            background-color: #b32d0f;
+        }
+        
+        .url-btn {
+            background-color: #0073bb;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .url-btn:hover {
+            background-color: #0062a3;
+        }
+        
+        .current-file-section {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .preview-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 5px;
+            background-color: #f8f9fa;
+        }
+        
+        .url-display {
+            background-color: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            word-break: break-all;
+            font-size: 0.8rem;
+            display: none;
+        }
+        
+        .url-display a {
+            color: #0073bb;
+            text-decoration: none;
+        }
+        
+        .url-display a:hover {
+            text-decoration: underline;
+        }
+        
+        .message {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .timer {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>File Uploader</h1>
+        </header>
+        
+        <div class="card">
+            <h2>Upload File</h2>
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    <div class="file-input-button">
+                        <span id="file-input-label">Choose a file to upload</span>
+                        <input type="file" id="file-input" accept="image/*">
+                    </div>
+                </div>
+                <div class="selected-file" id="selected-file"></div>
+                <button id="upload-btn" disabled>Upload File</button>
+            </div>
+            
+            <div class="current-file-section" id="current-file-section">
+                <h3>Current File</h3>
+                <div class="file-info">
+                    <div class="image-name" id="current-file-name"></div>
+                    <div class="file-actions">
+                        <button class="url-btn" id="get-url-btn">Get URL</button>
+                        <button class="delete-btn" id="delete-btn">Delete File</button>
+                    </div>
+                    <div class="timer" id="timer">Time remaining: 2:00</div>
+                    
+                    <div class="preview-container">
+                        <img id="preview-image" class="preview-image" src="" alt="Preview" style="display: none;">
+                    </div>
+                    
+                    <div class="url-display" id="url-display"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://15.206.210.157:9004';
+        
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const fileInputLabel = document.getElementById('file-input-label');
+        const selectedFile = document.getElementById('selected-file');
+        const uploadBtn = document.getElementById('upload-btn');
+        const currentFileSection = document.getElementById('current-file-section');
+        const currentFileName = document.getElementById('current-file-name');
+        const getUrlBtn = document.getElementById('get-url-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const previewImage = document.getElementById('preview-image');
+        const urlDisplay = document.getElementById('url-display');
+        const timerElement = document.getElementById('timer');
+        const messageDiv = document.getElementById('message');
+        
+        // Global variables
+        let currentUploadedFile = null;
+        let timerInterval = null;
+        let timeRemaining = 120; // 2 minutes in seconds
+        
+        // Global storage for React app consumption
+        window.fileUploader = {
+            getCurrentFileUrl: () => {
+                return currentUploadedFile ? window.imageUrlStore?.[currentUploadedFile] : null;
+            },
+            getFileUrl: (fileName) => {
+                return window.imageUrlStore?.[fileName] || null;
+            },
+            getAllUrls: () => {
+                return window.imageUrlStore ? { ...window.imageUrlStore } : {};
+            }
+        };
+        
+        // Initialize URL store
+        window.imageUrlStore = {};
+        
+        // Event Listeners
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadBtn.addEventListener('click', uploadFile);
+        getUrlBtn.addEventListener('click', getImageUrl);
+        deleteBtn.addEventListener('click', deleteCurrentFile);
+        
+        // Handle file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                fileInputLabel.textContent = file.name;
+                selectedFile.textContent = `Selected file: ${file.name} (${formatFileSize(file.size)})`;
+                uploadBtn.disabled = false;
+            } else {
+                fileInputLabel.textContent = 'Choose a file to upload';
+                selectedFile.textContent = '';
+                uploadBtn.disabled = true;
+            }
+        }
+        
+        // Upload file to S3 - POST /upload
+        async function uploadFile() {
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage('Please select a file to upload', 'error');
+                return;
+            }
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Update button state
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<span class="loading"></span> Uploading...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    currentUploadedFile = file.name;
+                    showMessage('File uploaded successfully!', 'success');
+                    
+                    // Reset file input
+                    fileInput.value = '';
+                    fileInputLabel.textContent = 'Choose a file to upload';
+                    selectedFile.textContent = '';
+                    
+                    // Show current file section
+                    currentFileName.textContent = file.name;
+                    currentFileSection.style.display = 'block';
+                    
+                    // Reset preview and URL display
+                    previewImage.style.display = 'none';
+                    urlDisplay.style.display = 'none';
+                    
+                    // Start 2-minute timer
+                    startTimer();
+                    
+                } else {
+                    const errorText = await response.text();
+                    showMessage(`Upload failed: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Upload error: ${error.message}`, 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload File';
+            }
+        }
+        
+        // Get image URL - GET /presign/{fileName}
+        async function getImageUrl() {
+            if (!currentUploadedFile) {
+                showMessage('No file has been uploaded', 'error');
+                return;
+            }
+            
+            getUrlBtn.disabled = true;
+            getUrlBtn.innerHTML = '<span class="loading"></span> Getting URL...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/presign/${encodeURIComponent(currentUploadedFile)}`);
+                
+                console.log('=== Presign API Response ===');
+                console.log('Status:', response.status);
+                
+                if (response.ok) {
+                    // Handle both JSON and direct URL responses
+                    let imageUrl;
+                    const responseText = await response.text();
+                    
+                    console.log('Raw Response:', responseText);
+                    
+                    try {
+                        // Try to parse as JSON first
+                        const data = JSON.parse(responseText);
+                        imageUrl = data.url;
+                        console.log('Parsed JSON URL:', imageUrl);
+                    } catch (e) {
+                        // If it's not JSON, use the response text directly as URL
+                        imageUrl = responseText;
+                        console.log('Direct URL Response:', imageUrl);
+                    }
+                    
+                    // Store the URL globally for React app consumption
+                    window.imageUrlStore[currentUploadedFile] = imageUrl;
+                    console.log('Stored URL for React app:', imageUrl);
+                    
+                    // Show preview if it's an image
+                    if (currentUploadedFile.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)) {
+                        previewImage.src = imageUrl;
+                        previewImage.style.display = 'block';
+                        previewImage.onerror = function() {
+                            console.log('Image failed to load');
+                            previewImage.style.display = 'none';
+                        };
+                    }
+                    
+                    // Display the URL
+                    urlDisplay.innerHTML = `
+                        <strong>File URL:</strong><br>
+                        <a href="${imageUrl}" target="_blank">${imageUrl}</a>
+                    `;
+                    urlDisplay.style.display = 'block';
+                    
+                    showMessage('URL generated successfully!', 'success');
+                    
+                } else {
+                    const errorText = await response.text();
+                    console.log('Error response:', errorText);
+                    showMessage('Failed to get file URL', 'error');
+                }
+            } catch (error) {
+                console.log('Fetch error:', error);
+                showMessage(`Error getting URL: ${error.message}`, 'error');
+            } finally {
+                getUrlBtn.disabled = false;
+                getUrlBtn.textContent = 'Get URL';
+            }
+        }
+        
+        // Delete current file - DELETE /delete/{fileName}
+        async function deleteCurrentFile() {
+            if (!currentUploadedFile) {
+                showMessage('No file to delete', 'error');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete "${currentUploadedFile}"?`)) {
+                return;
+            }
+            
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<span class="loading"></span> Deleting...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/delete/${encodeURIComponent(currentUploadedFile)}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Remove from URL store
+                    delete window.imageUrlStore[currentUploadedFile];
+                    
+                    // Reset current file
+                    currentUploadedFile = null;
+                    currentFileSection.style.display = 'none';
+                    
+                    // Clear timer
+                    clearInterval(timerInterval);
+                    
+                    showMessage('File deleted successfully', 'success');
+                } else {
+                    showMessage('Failed to delete file', 'error');
+                }
+            } catch (error) {
+                showMessage(`Delete error: ${error.message}`, 'error');
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = 'Delete File';
+            }
+        }
+        
+        // Start 2-minute timer
+        function startTimer() {
+            timeRemaining = 120; // Reset to 2 minutes
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    currentFileSection.style.display = 'none';
+                    currentUploadedFile = null;
+                    showMessage('File session expired. Please upload a new file.', 'error');
+                }
+            }, 1000);
+        }
+        
+        // Show message to user
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
+
+<!-- react javascript code 
+
+// React App Usage:
+// The URLs are available through a global object that acts as a REST endpoint
+
+// Method 1: Get current uploaded file URL
+const currentUrl = window.fileUploader?.getCurrentFileUrl();
+
+// Method 2: Get URL for specific file
+const specificUrl = window.fileUploader?.getFileUrl('my-image.jpg');
+
+// Method 3: Get all stored URLs
+const allUrls = window.fileUploader?.getAllUrls();
+
+// Example React component:
+function ImageDisplay() {
+    const [imageUrl, setImageUrl] = React.useState(null);
+
+    const checkForImage = () => {
+        // Poll for the URL (you can implement more sophisticated polling)
+        const url = window.fileUploader?.getCurrentFileUrl();
+        if (url) {
+            setImageUrl(url);
+        }
+    };
+
+    React.useEffect(() => {
+        // Check immediately
+        checkForImage();
+        
+        // Set up polling every 2 seconds
+        const interval = setInterval(checkForImage, 2000);
+        
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <div>
+            {imageUrl ? (
+                <img src={imageUrl} alt="Uploaded file" style={{ maxWidth: '100%' }} />
+            ) : (
+                <p>No image URL available yet</p>
+            )}
+        </div>
+    );
+} -->

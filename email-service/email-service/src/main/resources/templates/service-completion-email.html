@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Completion Notification</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+	    body { @apply font-sans leading-relaxed text-gray-800; }
+	    .container { @apply max-w-xl mx-auto p-5; }
+	    .header { @apply bg-[#232f3e] text-white p-6 text-center; }
+	    .content { @apply bg-gray-100 p-6 rounded-md; }
+	    .invoice { @apply bg-white p-6 border border-gray-300 my-6 rounded-md; }
+	    .service-image { @apply w-full h-auto rounded-md my-3; }
+	    .footer { @apply text-center mt-6 text-gray-500 text-xs; }
+	    table { @apply w-full border-collapse my-3; }
+	    th, td { @apply p-3 text-left border-b border-gray-300; }
+	    th { @apply bg-gray-100 font-semibold; }
+	    .total-row { @apply font-bold bg-green-50; }
+	</style>
+
+	
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Automotive Service Center</h1>
+            <h2>Service Completion Notification</h2>
+        </div>
+        
+        <div class="content">
+            <p>Dear <span th:text="${customerName}">Customer</span>,</p>
+            
+            <p>We're pleased to inform you that your vehicle service has been completed successfully.</p>
+            
+            <!-- Service Image -->
+            <div th:if="${serviceImageUrl}">
+                <h3>Service Completion Photo</h3>
+                <img th:src="${serviceImageUrl}" alt="Service Completion Photo" class="service-image" />
+            </div>
+            
+            <!-- Invoice Section -->
+            <div class="invoice">
+                <h3>Service Invoice #<span th:text="${invoiceNumber}">INV-001</span></h3>
+                
+                <table>
+                    <tr>
+                        <th>Vehicle Information</th>
+                        <th>Service Details</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Model:</strong> <span th:text="${vehicleModel}"></span><br>
+                            <strong>License Plate:</strong> <span th:text="${licensePlate}"></span>
+                        </td>
+                        <td>
+                            <strong>Service Type:</strong> <span th:text="${serviceType}"></span><br>
+                            <strong>Mechanic:</strong> <span th:text="${mechanicName}"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Service Date:</strong></td>
+                        <td><span th:text="${serviceDate}"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Completion Date:</strong></td>
+                        <td><span th:text="${completionDate}"></span></td>
+                    </tr>
+                </table>
+                
+                <!-- Service Details -->
+                <div th:if="${serviceDetails}">
+                    <h4>Service Performed:</h4>
+                    <p th:text="${serviceDetails}"></p>
+                </div>
+                
+                <!-- Cost Breakdown -->
+                <table>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                    <tr>
+                        <td>Service Charges</td>
+                        <td>$<span th:text="${#numbers.formatDecimal(finalCost, 1, 2)}"></span></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>Total Amount</strong></td>
+                        <td><strong>$<span th:text="${#numbers.formatDecimal(finalCost, 1, 2)}"></span></strong></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <p>Your vehicle is ready for pickup. Please bring this invoice when you come to collect your vehicle.</p>
+            
+            <p><strong>Service Center Information:</strong><br>
+            <span th:text="${serviceCenterInfo}"></span></p>
+            
+            <p>Thank you for choosing Automotive Service Center!</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated email. Please do not reply to this message.</p>
+            <p>© 2025 Automotive Service Center. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

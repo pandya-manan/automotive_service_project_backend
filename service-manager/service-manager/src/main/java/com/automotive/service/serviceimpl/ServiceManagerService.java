@@ -42,7 +42,8 @@ public class ServiceManagerService {
     }
 
     public List<WorkOrderResponseDto> listOpenWorkOrders() {
-        List<WorkOrder> list = workOrderRepo.findByStatus(WorkOrderStatus.OPEN);
+//        List<WorkOrder> list = workOrderRepo.findByStatus(WorkOrderStatus.OPEN);
+    	List<WorkOrder> list=workOrderRepo.findAll();
         return list.stream().map(this::toDto).collect(Collectors.toList());
     }
 
