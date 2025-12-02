@@ -95,7 +95,7 @@ class ServiceManagerServiceTest {
         // Arrange
         List<WorkOrder> workOrders = new ArrayList<>();
         workOrders.add(testWorkOrder);
-        when(workOrderRepository.findByStatus(WorkOrderStatus.OPEN)).thenReturn(workOrders);
+        when(workOrderRepository.findAll()).thenReturn(workOrders);
 
         // Act
         List<WorkOrderResponseDto> result = serviceManagerService.listOpenWorkOrders();
@@ -103,7 +103,7 @@ class ServiceManagerServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(workOrderRepository, times(1)).findByStatus(WorkOrderStatus.OPEN);
+        verify(workOrderRepository, times(1)).findAll();
     }
 
     @Test
@@ -192,6 +192,297 @@ class ServiceManagerServiceTest {
         assertNotNull(result);
         verify(workOrderRepository, times(1)).findByServiceOrderId("SRV-12345678");
         verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+    }
+
+    @Test
+    @DisplayName("Should successfully assign mechanic to work order")
+    void testAssignMechanic_Success() throws WorkOrderException {
+        // Arrange
+        AssignMechanicRequest request = new AssignMechanicRequest(2L, 1500.0);
+        testWorkOrder.setStatus(WorkOrderStatus.OPEN);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(mechanicRepository.findById(2L))
+            .thenReturn(Optional.of(testMechanic));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+        when(vehicleRepository.save(any(Vehicle.class))).thenReturn(testVehicle);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.assignMechanic("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).findByServiceOrderId("SRV-12345678");
+        verify(mechanicRepository, times(1)).findById(2L);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+        verify(vehicleRepository, times(1)).save(any(Vehicle.class));
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when work order not found for assign mechanic")
+    void testAssignMechanic_WorkOrderNotFound() {
+        // Arrange
+        AssignMechanicRequest request = new AssignMechanicRequest(2L, 1500.0);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class,
+            () -> serviceManagerService.assignMechanic("SRV-12345678", request));
+        verify(workOrderRepository, times(1)).findByServiceOrderId("SRV-12345678");
+        verify(mechanicRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when mechanic not found")
+    void testAssignMechanic_MechanicNotFound() {
+        // Arrange
+        AssignMechanicRequest request = new AssignMechanicRequest(2L, 1500.0);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(mechanicRepository.findById(2L))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class,
+            () -> serviceManagerService.assignMechanic("SRV-12345678", request));
+        verify(mechanicRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Should successfully complete work order")
+    void testCompleteWorkOrder_Success() throws WorkOrderException {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(1000.0, 1200.0);
+        testWorkOrder.setStatus(WorkOrderStatus.IN_PROGRESS);
+        testWorkOrder.setAssignedBy(testManager);
+        testWorkOrder.setMechanic(testMechanic);
+        com.automotive.service.entity.Customer testCustomer = new com.automotive.service.entity.Customer();
+        testCustomer.setUserId(3L);
+        testCustomer.setUserName("Test Customer");
+        testCustomer.setUserEmail("customer@example.com");
+        testVehicle.setOwner(testCustomer);
+        
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+        when(vehicleRepository.save(any(Vehicle.class))).thenReturn(testVehicle);
+        
+        // Mock RestClient
+        RestClient.RequestBodyUriSpec requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        RestClient.RequestBodySpec requestBodySpec = mock(RestClient.RequestBodySpec.class);
+        RestClient.ResponseSpec responseSpec = mock(RestClient.ResponseSpec.class);
+        when(restClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.toEntity(String.class)).thenReturn(null);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.completeWorkOrder("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).findByServiceOrderId("SRV-12345678");
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+        verify(vehicleRepository, times(1)).save(any(Vehicle.class));
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when work order not found for complete")
+    void testCompleteWorkOrder_WorkOrderNotFound() {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(1000.0, 1200.0);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class,
+            () -> serviceManagerService.completeWorkOrder("SRV-12345678", request));
+        verify(workOrderRepository, times(1)).findByServiceOrderId("SRV-12345678");
+    }
+
+    @Test
+    @DisplayName("Should handle email service failure in complete work order")
+    void testCompleteWorkOrder_EmailServiceFailure() throws WorkOrderException {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(1000.0, 1200.0);
+        testWorkOrder.setStatus(WorkOrderStatus.IN_PROGRESS);
+        testWorkOrder.setAssignedBy(testManager);
+        testWorkOrder.setMechanic(testMechanic);
+        com.automotive.service.entity.Customer testCustomer = new com.automotive.service.entity.Customer();
+        testCustomer.setUserId(3L);
+        testCustomer.setUserName("Test Customer");
+        testCustomer.setUserEmail("customer@example.com");
+        testVehicle.setOwner(testCustomer);
+        
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+        when(vehicleRepository.save(any(Vehicle.class))).thenReturn(testVehicle);
+        
+        // Mock RestClient to throw exception
+        RestClient.RequestBodyUriSpec requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        RestClient.RequestBodySpec requestBodySpec = mock(RestClient.RequestBodySpec.class);
+        RestClient.ResponseSpec responseSpec = mock(RestClient.ResponseSpec.class);
+        when(restClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.toEntity(String.class)).thenThrow(new RuntimeException("Email service unavailable"));
+
+        // Act - Should still succeed even if email fails
+        WorkOrderResponseDto result = serviceManagerService.completeWorkOrder("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+    }
+
+    @Test
+    @DisplayName("Should handle null vehicle in complete work order")
+    void testCompleteWorkOrder_NullVehicle() throws WorkOrderException {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(1000.0, 1200.0);
+        testWorkOrder.setVehicle(null);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.completeWorkOrder("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should handle null vehicle owner in complete work order")
+    void testCompleteWorkOrder_NullVehicleOwner() throws WorkOrderException {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(1000.0, 1200.0);
+        testVehicle.setOwner(null);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+        when(vehicleRepository.save(any(Vehicle.class))).thenReturn(testVehicle);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.completeWorkOrder("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+        verify(vehicleRepository, times(1)).save(any(Vehicle.class));
+    }
+
+    @Test
+    @DisplayName("Should handle null estimated cost in update costs")
+    void testUpdateCosts_NullEstimatedCost() throws WorkOrderException {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(null, 1200.0);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.updateCosts("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+    }
+
+    @Test
+    @DisplayName("Should handle null final cost in update costs")
+    void testUpdateCosts_NullFinalCost() throws WorkOrderException {
+        // Arrange
+        UpdateCostsRequest request = new UpdateCostsRequest(1000.0, null);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.updateCosts("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+    }
+
+    @Test
+    @DisplayName("Should handle null vehicle in assign manager")
+    void testAssignManager_NullVehicle() throws WorkOrderException {
+        // Arrange
+        AssignManagerRequest request = new AssignManagerRequest(1L);
+        testWorkOrder.setVehicle(null);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(serviceManagerRepository.findById(1L))
+            .thenReturn(Optional.of(testManager));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.assignManager("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should handle null vehicle in assign mechanic")
+    void testAssignMechanic_NullVehicle() throws WorkOrderException {
+        // Arrange
+        AssignMechanicRequest request = new AssignMechanicRequest(2L, 1500.0);
+        testWorkOrder.setVehicle(null);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(mechanicRepository.findById(2L))
+            .thenReturn(Optional.of(testMechanic));
+        when(workOrderRepository.save(any(WorkOrder.class))).thenReturn(testWorkOrder);
+
+        // Act
+        WorkOrderResponseDto result = serviceManagerService.assignMechanic("SRV-12345678", request);
+
+        // Assert
+        assertNotNull(result);
+        verify(workOrderRepository, times(1)).save(any(WorkOrder.class));
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no work orders exist")
+    void testListOpenWorkOrders_EmptyList() {
+        // Arrange
+        when(workOrderRepository.findAll()).thenReturn(new ArrayList<>());
+
+        // Act
+        List<WorkOrderResponseDto> result = serviceManagerService.listOpenWorkOrders();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(workOrderRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when manager not found")
+    void testAssignManager_ManagerNotFound() {
+        // Arrange
+        AssignManagerRequest request = new AssignManagerRequest(999L);
+        when(workOrderRepository.findByServiceOrderId("SRV-12345678"))
+            .thenReturn(Optional.of(testWorkOrder));
+        when(serviceManagerRepository.findById(999L))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class,
+            () -> serviceManagerService.assignManager("SRV-12345678", request));
+        verify(serviceManagerRepository, times(1)).findById(999L);
     }
 }
 

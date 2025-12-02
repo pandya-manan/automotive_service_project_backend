@@ -177,5 +177,174 @@ class MechanicServiceImplTest {
             .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
         // Note: save() is not called explicitly as JPA handles persistence through @Transactional
     }
+
+    @Test
+    @DisplayName("Should successfully complete work order")
+    void testCompleteWorkOrder_Success() throws WorkOrderException {
+        // Arrange
+        testWorkOrder.setStatus(WorkOrderStatus.IN_PROGRESS);
+        testWorkOrder.setScheduledAt(OffsetDateTime.now());
+        testWorkOrder.setEstimatedCost(1000.0);
+        com.automotive.mechanic.entity.Customer testCustomer = new com.automotive.mechanic.entity.Customer();
+        testCustomer.setUserEmail("customer@example.com");
+        testCustomer.setUserName("Test Customer");
+        testVehicle.setOwner(testCustomer);
+        
+        com.automotive.mechanic.dto.WorkOrderCompletionRequest completionRequest = 
+            new com.automotive.mechanic.dto.WorkOrderCompletionRequest();
+        completionRequest.setFinalCost(1500.0);
+        completionRequest.setServiceDetails("Service completed");
+        completionRequest.setServiceImageUrl("http://example.com/image.jpg");
+        
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.completeWorkOrder("SRV-12345678", 1L, completionRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(WorkOrderStatus.COMPLETED, result.getStatus());
+        assertEquals(1500.0, result.getFinalCost());
+        assertTrue(testVehicle.getServiceDone());
+        assertFalse(testVehicle.getBookedForService());
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when work order not found for complete")
+    void testCompleteWorkOrder_NotFound() {
+        // Arrange
+        com.automotive.mechanic.dto.WorkOrderCompletionRequest completionRequest = 
+            new com.automotive.mechanic.dto.WorkOrderCompletionRequest();
+        completionRequest.setFinalCost(1500.0);
+        
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class,
+            () -> mechanicService.completeWorkOrder("SRV-12345678", 1L, completionRequest));
+        verify(workOrderRepository, times(1))
+            .findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L);
+    }
+
+    @Test
+    @DisplayName("Should throw WorkOrderException when work order not in progress")
+    void testCompleteWorkOrder_InvalidStatus() {
+        // Arrange
+        testWorkOrder.setStatus(WorkOrderStatus.OPEN);
+        com.automotive.mechanic.dto.WorkOrderCompletionRequest completionRequest = 
+            new com.automotive.mechanic.dto.WorkOrderCompletionRequest();
+        completionRequest.setFinalCost(1500.0);
+        
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act & Assert
+        assertThrows(WorkOrderException.class,
+            () -> mechanicService.completeWorkOrder("SRV-12345678", 1L, completionRequest));
+    }
+
+    @Test
+    @DisplayName("Should handle null service details in completion request")
+    void testCompleteWorkOrder_NullServiceDetails() throws WorkOrderException {
+        // Arrange
+        testWorkOrder.setStatus(WorkOrderStatus.IN_PROGRESS);
+        testWorkOrder.setScheduledAt(OffsetDateTime.now());
+        com.automotive.mechanic.entity.Customer testCustomer = new com.automotive.mechanic.entity.Customer();
+        testCustomer.setUserEmail("customer@example.com");
+        testCustomer.setUserName("Test Customer");
+        testVehicle.setOwner(testCustomer);
+        
+        com.automotive.mechanic.dto.WorkOrderCompletionRequest completionRequest = 
+            new com.automotive.mechanic.dto.WorkOrderCompletionRequest();
+        completionRequest.setFinalCost(1500.0);
+        completionRequest.setServiceDetails(null);
+        
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.completeWorkOrder("SRV-12345678", 1L, completionRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(WorkOrderStatus.COMPLETED, result.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should handle null description when appending service details")
+    void testCompleteWorkOrder_NullDescription() throws WorkOrderException {
+        // Arrange
+        testWorkOrder.setStatus(WorkOrderStatus.IN_PROGRESS);
+        testWorkOrder.setDescription(null);
+        testWorkOrder.setScheduledAt(OffsetDateTime.now());
+        com.automotive.mechanic.entity.Customer testCustomer = new com.automotive.mechanic.entity.Customer();
+        testCustomer.setUserEmail("customer@example.com");
+        testCustomer.setUserName("Test Customer");
+        testVehicle.setOwner(testCustomer);
+        
+        com.automotive.mechanic.dto.WorkOrderCompletionRequest completionRequest = 
+            new com.automotive.mechanic.dto.WorkOrderCompletionRequest();
+        completionRequest.setFinalCost(1500.0);
+        completionRequest.setServiceDetails("Service completed");
+        
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.completeWorkOrder("SRV-12345678", 1L, completionRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(testWorkOrder.getDescription().contains("Service Details: Service completed"));
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no work orders assigned")
+    void testListAssignedWorkOrders_EmptyList() {
+        // Arrange
+        when(workOrderRepository.findByMechanic_UserId(1L)).thenReturn(new ArrayList<>());
+
+        // Act
+        List<MechanicWorkOrderResponse> result = mechanicService.listAssignedWorkOrders(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(workOrderRepository, times(1)).findByMechanic_UserId(1L);
+    }
+
+    @Test
+    @DisplayName("Should handle null description when updating progress")
+    void testUpdateProgress_NullDescription() throws WorkOrderException {
+        // Arrange
+        testWorkOrder.setDescription(null);
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.updateProgress("SRV-12345678", 1L, "Progress update");
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(testWorkOrder.getDescription().contains("Progress update"));
+    }
+
+    @Test
+    @DisplayName("Should handle null progress update")
+    void testUpdateProgress_NullProgress() throws WorkOrderException {
+        // Arrange
+        when(workOrderRepository.findByServiceOrderIdAndMechanic_UserId("SRV-12345678", 1L))
+            .thenReturn(Optional.of(testWorkOrder));
+
+        // Act
+        MechanicWorkOrderResponse result = mechanicService.updateProgress("SRV-12345678", 1L, null);
+
+        // Assert
+        assertNotNull(result);
+    }
 }
 
